@@ -1,5 +1,6 @@
 #include <iostream>
 #include <random>
+#include <chrono>
 #include "database.h"
 
 // Generate a random number in [0, upper).
@@ -15,7 +16,8 @@ int main(void)
     Database db("test_db");
     constexpr int num_records = 500;
     
-    clock_t t0 = clock();
+    std::chrono::high_resolution_clock clock;
+    auto t0 = clock.now().time_since_epoch();
     
     // Write.
     for (int i = 0; i < num_records; i++)
@@ -60,7 +62,9 @@ int main(void)
         for (int j = 0; j < 10; j++) { db.fetch(std::string("key_") + std::to_string(rand_num(i))); }
     }
     
-    std::cout << "Time elapsed: " << (clock() - t0) / 1000000.0f << "s" << std::endl;
+    auto t1 = clock.now().time_since_epoch();
+    
+    std::cout << "Time elapsed: " << std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() / 1000.0f << "ms" << std::endl;
     
     return 0;
 }
