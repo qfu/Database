@@ -48,12 +48,12 @@ int main(void)
         if (i % 17 == 0) { db.replace(std::string("key_") + std::to_string(rand_num(num_records)), "new records"); }
     }
     
+    // Remove all and random access.
     for (int i = 0; i < num_records; i += 11)
     {
         db.remove(std::string("ins_") + std::to_string(i));
         for (int j = 0; j < 10; j++) { db.fetch(std::string("key_") + std::to_string(rand_num(i))); }
     }
-    
     for (int i = 0; i < num_records; i++)
     {
         db.remove(std::string("key_") + std::to_string(i));
