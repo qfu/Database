@@ -25,7 +25,7 @@ inline Offset Database::_hash(const std::string &key)
         hash_val %= mask;
     }
     
-    return hash_val + 1;    // The hash value is in [1, hash_table_size).
+    return hash_val + 1;    // Ensure that the hash value is in [1, hash_table_size), for 0 is preserved for other use.
 }
 
 void Database::open(const std::string &db_name)
@@ -151,33 +151,6 @@ void Database::replace(const std::string &key, const std::string &data)
     insert(key, data);
 }
 
-// Assumed that the index file is already open.
-inline Offset Database::_get_index_offset(const HashItem &hash_item, const std::string &key)
-{
-    // Return if the index does not exist.
-    if (hash_item.count == 0) { return -1; }
-    
-    Offset curr_offset;     // Current index node offset.
-    
-    curr_offset = hash_item.first;
-    
-    // Find the index record.
-    for (int i = 0; i < hash_item.count; i++)
-    {
-        // Read the index node info and stored key.
-        IndexInfo index_info = _read_index_info(curr_offset);
-        std::string curr_key = _read_key(curr_offset, index_info.key_len);
-        
-        // Return if the index is found.
-        if (key == curr_key) { return curr_offset; }
-        
-        // Move to next index.
-        curr_offset = index_info.next;
-    }
-    
-    return -1;
-}
-
 void Database::create(const std::string &db_name)
 {
     std::ifstream index_existence_tester;
@@ -300,6 +273,33 @@ inline const std::string Database::_read_data(Offset data_offset, Size data_len)
     _data_file.read(buffer, data_len);
     
     return std::string(buffer);
+}
+
+// Assumed that the index file is already open.
+inline Offset Database::_get_index_offset(const HashItem &hash_item, const std::string &key)
+{
+    // Return if the index does not exist.
+    if (hash_item.count == 0) { return -1; }
+    
+    Offset curr_offset;     // Current index node offset.
+    
+    curr_offset = hash_item.first;
+    
+    // Find the index record.
+    for (int i = 0; i < hash_item.count; i++)
+    {
+        // Read the index node info and stored key.
+        IndexInfo index_info = _read_index_info(curr_offset);
+        std::string curr_key = _read_key(curr_offset, index_info.key_len);
+        
+        // Return if the index is found.
+        if (key == curr_key) { return curr_offset; }
+        
+        // Move to next index.
+        curr_offset = index_info.next;
+    }
+    
+    return -1;
 }
 
 inline void Database::_write_hash_item(Offset hash_offset, const HashItem &hash_item)
