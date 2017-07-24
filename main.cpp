@@ -1,6 +1,6 @@
+#include <chrono>
 #include <iostream>
 #include <random>
-#include <chrono>
 #include "database.h"
 
 // Generate a random number in [0, upper).
@@ -22,44 +22,44 @@ int main(void)
     // Write.
     for (int i = 0; i < num_records; i++)
     {
-        db.insert(std::string("key_") + std::to_string(i), std::string("test record ") + std::to_string(i));
+        db.insert("key_" + std::to_string(i), "test record " + std::to_string(i));
     }
     
     // Fetch.
     for (int i = 0; i < num_records; i++)
     {
-        db.fetch(std::string("key_") + std::to_string(i));
+        db.fetch("key_" + std::to_string(i));
     }
     
     for (int i = 0; i < num_records * 5; i++)
     {
         // Random access.
-        db.fetch(std::string("key_") + std::to_string(rand_num(num_records)));
+        db.fetch("key_" + std::to_string(rand_num(num_records)));
         
         // Random deletion.
-        if (i % 37 == 0) { db.remove(std::string("key_") + std::to_string(rand_num(num_records))); }
+        if (i % 37 == 0) { db.remove("key_" + std::to_string(rand_num(num_records))); }
         
         // Random insertion and access.
         if (i % 11 == 0)
         {
-            db.insert(std::string("ins_") + std::to_string(rand_num(num_records)), "insertion...");
-            db.fetch(std::string("ins_") + std::to_string(rand_num(num_records)));
+            db.insert("ins_" + std::to_string(rand_num(num_records)), "insertion...");
+            db.fetch("ins_" + std::to_string(rand_num(num_records)));
         }
         
         // Random replacement.
-        if (i % 17 == 0) { db.replace(std::string("key_") + std::to_string(rand_num(num_records)), "new records"); }
+        if (i % 17 == 0) { db.replace("key_" + std::to_string(rand_num(num_records)), "new records"); }
     }
     
     // Remove all and random access.
     for (int i = 0; i < num_records; i += 11)
     {
-        db.remove(std::string("ins_") + std::to_string(i));
-        for (int j = 0; j < 10; j++) { db.fetch(std::string("key_") + std::to_string(rand_num(i))); }
+        db.remove("ins_" + std::to_string(i));
+        for (int j = 0; j < 10; j++) { db.fetch("key_" + std::to_string(rand_num(i))); }
     }
     for (int i = 0; i < num_records; i++)
     {
-        db.remove(std::string("key_") + std::to_string(i));
-        for (int j = 0; j < 10; j++) { db.fetch(std::string("key_") + std::to_string(rand_num(i))); }
+        db.remove("key_" + std::to_string(i));
+        for (int j = 0; j < 10; j++) { db.fetch("key_" + std::to_string(rand_num(i))); }
     }
     
     auto t1 = clock.now().time_since_epoch();

@@ -16,16 +16,13 @@ Database::~Database(void)
 
 inline Offset Database::_hash(const std::string &key)
 {
-    long hash_val = 1;
-    constexpr unsigned long mask = hash_table_size - 1;
+    uint32_t seed = 13; // 31 131 1313 13131 131313 etc..
+    uint32_t hash_val = 0;
+    uint32_t mask = hash_table_size - 1;
     
-    for (auto ch : key)
-    {
-        hash_val *= ch;
-        hash_val %= mask;
-    }
+    for (char ch : key) { hash_val = hash_val * seed + ch; }
     
-    return hash_val + 1;    // Ensure that the hash value is in [1, hash_table_size), for 0 is preserved for other use.
+    return hash_val % mask;
 }
 
 void Database::open(const std::string &db_name)
@@ -126,7 +123,7 @@ void Database::remove(const std::string &key)
     }
 }
 
-const std::string Database::fetch(const std::string &key)
+std::string Database::fetch(const std::string &key)
 {
     // Return directly if the database is not opened.
     if (!_index_file.is_open() || !_data_file.is_open()) { return std::string(); }
@@ -183,7 +180,7 @@ void Database::rewind(void)
     if (_data_file.is_open()) { _data_file.seekg(0, std::ios::beg); }
 }
 
-const std::string Database::next_record(void)
+std::string Database::next_record(void)
 {
     std::string data;
     DataInfo data_info;
@@ -208,7 +205,7 @@ const std::string Database::next_record(void)
 }
 
 // Assumed that the index file is already open.
-inline const HashItem Database::_read_hash_item(Offset hash_offset)
+inline HashItem Database::_read_hash_item(Offset hash_offset)
 {
     Offset hash_index;      // Offset of the chain pointer in the hash table.
     HashItem hash_item;     // Pointer to the first index in the index chain.
@@ -221,7 +218,7 @@ inline const HashItem Database::_read_hash_item(Offset hash_offset)
 }
 
 // Assumed that the index file is already open.
-inline const IndexInfo Database::_read_index_info(Offset index_offset)
+inline IndexInfo Database::_read_index_info(Offset index_offset)
 {
     IndexInfo index_info;
     
@@ -243,7 +240,7 @@ inline Offset Database::_read_data_offset(Offset index_offset)
 }
 
 // Assumed that the data file is already open.
-inline const DataInfo Database::_read_data_info(Offset data_offset)
+inline DataInfo Database::_read_data_info(Offset data_offset)
 {
     DataInfo data_info;
     
@@ -254,7 +251,7 @@ inline const DataInfo Database::_read_data_info(Offset data_offset)
 }
 
 // Assumed that the index file is already open.
-inline const std::string Database::_read_key(Offset index_offset, Size key_len)
+inline std::string Database::_read_key(Offset index_offset, Size key_len)
 {
     char buffer[key_len];
     
@@ -265,7 +262,7 @@ inline const std::string Database::_read_key(Offset index_offset, Size key_len)
 }
 
 // Assumed that the data file is already open.
-inline const std::string Database::_read_data(Offset data_offset, Size data_len)
+inline std::string Database::_read_data(Offset data_offset, Size data_len)
 {
     char buffer[data_len];
     

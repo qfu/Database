@@ -38,7 +38,7 @@ struct DataInfo
 // || Data Length: Size | Data Flag: Flag || Data: char[] ||
 //               sizeof(DataInfo)            Data Length
 
-constexpr Size hash_table_size = 10008;
+constexpr Size hash_table_size = 100019 + 1;
 constexpr const char *index_file_suffix = ".idx";
 constexpr const char *data_file_suffix = ".dat";
 
@@ -50,12 +50,12 @@ private:
     
     Offset _hash(const std::string &key);
     
-    const HashItem _read_hash_item(Offset hash_offset);
-    const IndexInfo _read_index_info(Offset index_offset);
-    const std::string _read_key(Offset index_offset, Size key_len);
+    HashItem _read_hash_item(Offset hash_offset);
+    IndexInfo _read_index_info(Offset index_offset);
+    std::string _read_key(Offset index_offset, Size key_len);
     Offset _read_data_offset(Offset index_offset);
-    const DataInfo _read_data_info(Offset data_offset);
-    const std::string _read_data(Offset data_offset, Size data_len);
+    DataInfo _read_data_info(Offset data_offset);
+    std::string _read_data(Offset data_offset, Size data_len);
     Offset _get_index_offset(const HashItem &hash_item, const std::string &key);
     
     void _write_hash_item(Offset hash_offset, const HashItem &hash_item);
@@ -73,9 +73,9 @@ public:
     void insert(const std::string &key, const std::string &data);
     void replace(const std::string &key, const std::string &data);
     void remove(const std::string &key);
-    const std::string fetch(const std::string &key);
+    std::string fetch(const std::string &key);
     void rewind(void);
-    const std::string next_record(void);
+    std::string next_record(void);
     
     static void create(const std::string &db_name);
 };
